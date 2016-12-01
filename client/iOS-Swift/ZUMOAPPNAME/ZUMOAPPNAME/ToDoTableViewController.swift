@@ -64,6 +64,8 @@ class ToDoTableViewController: UITableViewController, NSFetchedResultsController
         // Refresh data on load
         self.refreshControl?.beginRefreshing()
         self.onRefresh(self.refreshControl)
+        
+        self.loginAndGetData()
     }
     
     func onRefresh(sender: UIRefreshControl!) {
@@ -100,6 +102,30 @@ class ToDoTableViewController: UITableViewController, NSFetchedResultsController
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func loginAndGetData() {
+        
+        guard let client = self.table?.client where client.currentUser == nil else {
+            return
+        }
+        
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate.todoTableViewController = self
+        
+        client.loginWithProvider("google", customUrlScheme: "ZumoE2ETestApp", controller: self, animated: true) { (user, error) in
+            
+            if error != nil {
+                print("Error: \(error!.description)")
+            }
+            else {
+                self.table?.client.currentUser = user;
+                print("User logged in: \(user?.userId)")
+                
+                self.refreshControl?.beginRefreshing()
+                self.onRefresh(self.refreshControl)
+            }
+        }
     }
     
     // MARK: Table Controls

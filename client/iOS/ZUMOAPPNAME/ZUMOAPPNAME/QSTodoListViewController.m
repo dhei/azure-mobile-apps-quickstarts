@@ -61,6 +61,8 @@
 
     // load the data
     [self refresh];
+    
+    [self loginAndGetData];
 }
 
 - (NSFetchedResultsController *)fetchedResultsController {
@@ -102,6 +104,26 @@
     [self.todoService syncData:^
     {
          [self.refreshControl endRefreshing];
+    }];
+}
+
+#pragma mark * Login methods
+
+- (void)loginAndGetData
+{
+    QSAppDelegate *appDelegate = (QSAppDelegate *)[UIApplication sharedApplication].delegate;
+    appDelegate.qsTodoService = self.todoService;
+    
+    [self.todoService.client loginWithProvider:@"google" customUrlScheme:@"ZumoE2ETestApp" controller:self animated:YES completion:^(MSUser * _Nullable user, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Login failed with error: %@, %@", error, [error userInfo]);
+        }
+        else {
+            self.todoService.client.currentUser = user;
+            NSLog(@"User logged in: %@", user.userId);
+            
+            [self refresh];
+        }
     }];
 }
 

@@ -19,7 +19,18 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
                             
     var window: UIWindow?
+    
+    var todoTableViewController: ToDoTableViewController?
 
+    func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+        if url.scheme?.lowercaseString == "zumoe2etestapp" {
+            return (todoTableViewController!.table?.client.resumeWithURL(url))!
+        }
+        else {
+            return false
+        }
+    }
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
