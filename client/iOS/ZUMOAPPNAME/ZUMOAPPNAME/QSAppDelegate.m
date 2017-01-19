@@ -33,6 +33,17 @@
     return YES;
 }
 
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+    if ([[url.scheme lowercaseString] isEqualToString:@"zumoe2etestapp"]) {
+        // Resume login flow
+        return [self.qsTodoService.client resumeWithURL:url];
+    }
+    else {
+        return NO;
+    }
+}
+
 #pragma mark - Core Data stack
 
 // Returns the managed object context for the application.

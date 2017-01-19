@@ -45,7 +45,7 @@ class ToDoTableViewController: UITableViewController, NSFetchedResultsController
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        let client = MSClient(applicationURLString: "ZUMOAPPURL")
+        let client = MSClient(applicationURLString: "https://dihei-e2e-app.azurewebsites.net")
         let managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext!
         self.store = MSCoreDataStore(managedObjectContext: managedObjectContext)
         client.syncContext = MSSyncContext(delegate: nil, dataSource: self.store, callback: nil)
@@ -64,6 +64,8 @@ class ToDoTableViewController: UITableViewController, NSFetchedResultsController
         // Refresh data on load
         self.refreshControl?.beginRefreshing()
         self.onRefresh(self.refreshControl)
+        
+        self.loginAndGetData()
     }
     
     func onRefresh(_ sender: UIRefreshControl!) {
@@ -100,6 +102,29 @@ class ToDoTableViewController: UITableViewController, NSFetchedResultsController
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func loginAndGetData() {
+        
+        guard let client = self.table?.client, client.currentUser == nil else {
+            return
+        }
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.todoTableViewController = self
+        
+        let loginBlock: MSClientLoginBlock = {(user, error) -> Void in
+            if (error != nil) {
+                print("Error: \(error?.localizedDescription)")
+            }
+            else {
+                client.currentUser = user
+                print("User logged in: \(user?.userId)")
+            }
+        }
+
+        client.login(withProvider:"google", urlScheme: "ZumoE2ETestApp", controller: self, animated: true, completion: loginBlock)
+    
     }
     
     // MARK: Table Controls
